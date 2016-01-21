@@ -1,5 +1,5 @@
 ###Nodejs Price Server
-WebM recording of visualization here: [http://zvoryg.in/graph.webm](zvoryg.in/graph.webm)
+WebM recording of visualization here: [zvoryg.in/graph.webm](http://zvoryg.in/graph.webm)
 
 __server.js__ Updates a price variable based on time. On update, it broadcasts using sockets the new price.
 
