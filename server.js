@@ -3,7 +3,10 @@ var io = require('socket.io').listen(3000);
 
 var HOST = '127.0.0.1';
 var PORT = 8000;
-var price = 100;
+var microPrice= 100;
+
+var macroPrice = 100;
+var lastThirtyMacroPrice = 100;
 
 // Create a server instance, and chain the listen function to it
 // The function passed to net.createServer() becomes the event handler for the 'connection' event
@@ -26,8 +29,9 @@ net.createServer(function(sock) {
 }).listen(PORT, HOST);
 
 function updatePrice(){
-    price = price + Math.floor (Math.random() * 10) - 5 + (100-price) *0.1;
-        io.sockets.emit('price', price);
+    microPrice = microPrice + Math.floor (Math.random() * 10) - 5 + (100-microPrice) *0.1;
+    macroPrice = macroPrice + Math.floor (Math.random() * 2) - 1 + (100-macroPrice) *0.01;
+        io.sockets.emit('price', macroPrice + microPrice * 0.1);
 }
 
 setInterval(updatePrice, 50);
