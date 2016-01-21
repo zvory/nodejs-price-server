@@ -1,7 +1,8 @@
 <html>
     <body>
-        <h1>Real Time Price Data from Node.js server</h1>
-        <canvas id="mycanvas" width="600" height="300"></canvas>
+        <p><text style="color:green">Green</text> line is current price. </p>
+        <p><text style="color:magenta">Magenta</text> line is 3 second moving average </p>
+        <canvas id="mycanvas" width="800" height="300"></canvas>
         <ul id="pageViews"></ul>
         <script src="https://cdn.socket.io/socket.io-1.4.3.js"></script>
         <script src="smoothie.js"></script>
@@ -9,19 +10,44 @@
 
         <script>
 
-
-var smoothie = new SmoothieChart({ grid: { strokeStyle: 'rgb(125, 0, 0)', fillStyle: 'rgb(60, 0, 0)', lineWidth: 1, millisPerLine: 250, verticalSections: 6 } });
-smoothie.streamTo(document.getElementById("mycanvas"), 1000);
-
-var line1 = new TimeSeries();
-smoothie.addTimeSeries(line1, { strokeStyle: 'rgb(0, 255, 0)', fillStyle: 'rgba(0, 255, 0, 0.4)', lineWidth: 3 });
-
 var socket = io.connect('http://localhost:3000');
 socket.on('connect', function () {
     socket.on('price', function (msg) {
-          line1.append(new Date().getTime(), Number(msg));
+        writeGraph (Number(msg));
     });
 });
+
+
+function computeThirtyDayAvg (arr){
+    return arr.reduce(function (a, b) {
+        return a + b;
+    }) / arr.length;
+}
+
+var lastThirty = [];
+var smoothie = new SmoothieChart({ timestampFormatter:SmoothieChart.timeFormatter, grid: { strokeStyle: 'rgb(125, 0, 0)', fillStyle: 'rgb(60, 0, 0)', lineWidth: 1, millisPerLine: 250, verticalSections: 6 } });
+smoothie.streamTo(document.getElementById("mycanvas"), 1000);
+
+var currentSeries = new TimeSeries();
+var thirtySeries = new TimeSeries();
+
+smoothie.addTimeSeries(currentSeries, { strokeStyle: 'rgb(0, 255, 0)', fillStyle: 'rgba(0, 255, 0, 0.4)', lineWidth: 3 });
+smoothie.addTimeSeries(thirtySeries,
+          { strokeStyle:'rgb(255, 0, 255)', fillStyle:'rgba(255, 0, 255, 0.3)', lineWidth:3 });
+
+function writeGraph (datapoint) {
+    if (lastThirty.length > 60)
+        lastThirty.shift(datapoint);
+    
+    lastThirty.push(datapoint);
+    
+    thirtySeries.append(new Date().getTime(), computeThirtyDayAvg(lastThirty));
+    currentSeries.append(new Date().getTime(), datapoint); 
+
+
+}
+
+
 
 
         </script>
