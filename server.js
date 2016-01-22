@@ -1,8 +1,8 @@
 var net = require('net');
-var io = require('socket.io').listen(3000);
+var io = require('socket.io').listen(9091);
 
-var HOST = '127.0.0.1';
-var PORT = 8000;
+var HOST = 'csclub.uwaterloo.ca';
+var PORT = 9090;
 
 var price =100;
 
@@ -31,10 +31,16 @@ net.createServer(function(sock) {
     
 }).listen(PORT, HOST);
 
+io.on('connection', function(socket){
+    console.log("connection: " + socket);
+});
+
+
+
 function updatePrice(){
     //microPrice = microPrice + Math.ciel (Math.random() * 10) - 5 + (100-microPrice) *0.1;
     //macroPrice = macroPrice + Math.ciel (Math.random() * 2) - 1 + (100-macroPrice) *0.01;
-    price += (Math.random() >= 0.5) - 0.5 + (100-price) * 0.001;
+    price += Math.random() - 0.5 + (100-price) * 0.001;
     io.sockets.emit('price', price);
 }
 
