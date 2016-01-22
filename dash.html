@@ -10,7 +10,7 @@
 
         <script>
 
-var socket = io.connect('http://localhost:3000');
+var socket = io.connect('http://csclub.uwaterloo.ca:9091');
 socket.on('connect', function () {
     socket.on('price', function (msg) {
         writeGraphs (Number(msg));
@@ -24,8 +24,15 @@ function computeThirtyDayAvg (arr){
     }) / arr.length;
 }
 
+function myYRangeFunction (range) {
+    var min = range.min - 10;
+    var max = range.max + 10;
+    return {min: min, max: max};
+}
+
+
 var lastThirty = [];
-var smoothie = new SmoothieChart({timestampFormatter:SmoothieChart.timeFormatter, grid: { strokeStyle: 'rgb(125, 0, 0)', fillStyle: 'rgb(60, 0, 0)', lineWidth: 1, millisPerLine: 250, verticalSections: 6 } });
+var smoothie = new SmoothieChart({yRangeFunction: myYRangeFunction, millisPerPixel:100, timestampFormatter:SmoothieChart.timeFormatter, grid: { strokeStyle: 'rgb(125, 0, 0)', fillStyle: 'rgb(60, 0, 0)', lineWidth: 1, millisPerLine: 250, verticalSections: 6 } });
 smoothie.streamTo(document.getElementById("mycanvas"), 1000);
 
 var currentSeries = new TimeSeries();
