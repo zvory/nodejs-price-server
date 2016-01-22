@@ -1,5 +1,9 @@
 <html>
+    <title>
+        Price Visualization
+    </title>
     <body>
+        <p><a href="http://github.com/zvory/price-visualization">GitHub source </a>
         <p><text style="color:green">Green</text> line is current price. </p>
         <p><text style="color:magenta">Magenta</text> line is 3 second moving average </p>
         <canvas id="mycanvas" width="800" height="300"></canvas>
@@ -25,8 +29,8 @@ function computeThirtyDayAvg (arr){
 }
 
 function myYRangeFunction (range) {
-    var min = range.min - 10;
-    var max = range.max + 10;
+    var min = range.min - 5;
+    var max = range.max + 5;
     return {min: min, max: max};
 }
 
