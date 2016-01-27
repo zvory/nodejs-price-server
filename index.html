@@ -12,16 +12,17 @@
     <div class="container">
         <p><a href="http://github.com/zvory/price-visualization">GitHub source </a></p>
         <p><span style="color: green">Green</span> line is current price.</p>
+        <p><span style="color: magenta">Magenta</span> line is the thirty day moving average.</p>
 
         <div>
             <p>Symbol: TLO, Current Price: <span id = "TLOSpan"></span></p>
-            <canvas class="chart"  id="TLO" width="800" height="100"></canvas> </div>
+            <canvas class="chart"  id="TLO" width="800" height="150"></canvas> </div>
         <div><p>Symbol: STC, Current Price: <span id = "STCSpan"></span></p>
-            <canvas class="chart"  id="STC" width="800" height="100"></canvas> </div>
+            <canvas class="chart"  id="STC" width="800" height="150"></canvas> </div>
         <div><p>Symbol: MC, Current Price: <span id = "MCSpan"></span></p>
-             <canvas class="chart"  id="MC" width="800" height="100"></canvas> </div>
+             <canvas class="chart"  id="MC" width="800" height="150"></canvas> </div>
         <div><p>Symbol: RTZ, Current Price: <span id = "RTZSpan"></span></p>
-            <canvas class="chart"  id="RTZ" width="800" height="100"></canvas> </div>
+            <canvas class="chart"  id="RTZ" width="800" height="150"></canvas> </div>
     </div>
 
     <script src="https://cdn.socket.io/socket.io-1.4.3.js"></script>
@@ -39,6 +40,11 @@ socket.on('connect', function () {
     });
 });
 
+function arrayAverage (arr) {
+    return arr.reduce(function (a, b) {
+        return a + b;
+    })/arr.length;
+}
 
 function myYRangeFunction (range) {
     var min = range.min - 5;
@@ -49,6 +55,7 @@ function myYRangeFunction (range) {
 this.charts = {};
 
 function Chart (symbol) {
+    this.lastThirty = [];
     this.symbol = symbol;
     this.chart = new SmoothieChart(
             {yRangeFunction: myYRangeFunction,
@@ -61,7 +68,18 @@ function Chart (symbol) {
                     verticalSections: 6 }});
     this.stream = this.chart.streamTo(document.getElementById(symbol), 1000);
     this.series = new TimeSeries();
+    this.thirtyDaySeries = new TimeSeries();
     this.chart.addTimeSeries(this.series, { strokeStyle: 'rgb(0, 255, 0)', fillStyle: 'rgba(0, 255, 0, 0.4)', lineWidth: 3 });
+    this.chart.addTimeSeries(this.thirtyDaySeries, { strokeStyle: 'rgb(255, 0, 255)', fillStyle: 'rgba(0, 255, 0, 0.4)', lineWidth: 3 });
+
+    this.addDataPoint = function (price) {
+        if (this.lastThirty.length >30)
+            this.lastThirty.shift();
+        this.lastThirty.push(price);
+        this.thirtyDaySeries.append(new Date().getTime(), arrayAverage(this.lastThirty));
+        this.series.append(new Date().getTime(), price);
+        document.getElementById(this.symbol + "Span").innerHTML = Math.round(price);
+    }
 }
 
 window.onload = function () {
@@ -72,7 +90,7 @@ window.onload = function () {
 
 
 function writeGraphs (msg) {
-    charts[msg.symbol].series.append(new Date().getTime(), msg.price);
+    charts[msg.symbol].addDataPoint(msg.price);
 }
     </script>
 </body>

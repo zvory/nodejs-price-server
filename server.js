@@ -16,11 +16,13 @@ var prices = [];
 // The sock object the callback function receives UNIQUE for each connection
 
 io.on('connection', function(socket){
-    console.log(new Date() + ": new connection");
+    var address = socket.handshake.address;
 
-    fs.appendFile('log.txt', new Date() + ": new connection \n", function (err) {
-        if (err) return console.log(err);
-    });
+    //stdout logging
+    console.log(new Date() + ": new connection from: " + address);
+
+    //file logging
+    fs.appendFile('log.txt', new Date() + ": new connection from: " + address + " \n", function (err) { if (err) return console.log(err); });
 });
 
 //**********************************************
@@ -49,7 +51,6 @@ function initPrices () {
         for (var j =0; j < 5; ++j) 
             sum += Math.random () * 40;
         prices.push (Math.floor(sum));
-        console.log(Math.floor(sum));
     }
 }
 
