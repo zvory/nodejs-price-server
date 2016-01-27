@@ -7,7 +7,10 @@
         <p><span style="color: green">Green</span> line is current price.</p>
         <p><span style="color: magenta">Magenta</span> line is 30-Day Moving Average.</p>
 
-        <canvas id="mycanvas" width="800" height="300"></canvas>
+        <canvas id="TLO" width="800" height="300"></canvas>
+        <canvas id="STC" width="800" height="300"></canvas>
+        <canvas id="MC" width="800" height="300"></canvas>
+        <canvas id="RTZ" width="800" height="300"></canvas>
         <ul id="pageViews"></ul>
         <script src="https://cdn.socket.io/socket.io-1.4.3.js"></script>
         <script src="smoothie.js"></script>
@@ -38,7 +41,7 @@ function myYRangeFunction (range) {
 
 var lastThirty = [];
 var smoothie = new SmoothieChart({yRangeFunction: myYRangeFunction, millisPerPixel:100,  grid: { strokeStyle: 'rgb(125, 0, 0)', fillStyle: 'rgb(60, 0, 0)', lineWidth: 1, millisPerLine: 250, verticalSections: 6 } });
-smoothie.streamTo(document.getElementById("mycanvas"), 1000);
+smoothie.streamTo(document.getElementById("TLO"), 1000);
 
 var currentSeries = new TimeSeries();
 var thirtySeries = new TimeSeries();

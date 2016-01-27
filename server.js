@@ -5,7 +5,8 @@ var fs = require('fs');
 var HOST = 'csclub.uwaterloo.ca';
 var PORT = 9090;
 
-var price = 100;
+var symbols = ['TLO', 'STC', 'MC', 'RTZ'];
+var prices = [];
 
 //**********************************************
 //*****     SOCKETS TO DASHBOARD
@@ -17,18 +18,23 @@ var price = 100;
 io.on('connection', function(socket){
     console.log(new Date() + ": new connection");
 
-fs.appendFile('log.txt', new Date() + ": new connection \n", function (err) {
-    if (err) return console.log(err);
-});
+    fs.appendFile('log.txt', new Date() + ": new connection \n", function (err) {
+        if (err) return console.log(err);
+    });
 });
 
 //**********************************************
 //*****     PRICE CODE
 //**********************************************
 function updatePrice(){
-    //microPrice = microPrice + Math.ciel (Math.random() * 10) - 5 + (100-microPrice) *0.1;
-    //macroPrice = macroPrice + Math.ciel (Math.random() * 2) - 1 + (100-macroPrice) *0.01;
-    price += Math.random() - 0.5 + (100-price) * 0.001;
+    prices.map(function (entry) {
+        return Math.abs(entry + Math.random() - 0.5);
+    });
+    
+    prices.forEach(function (entry, index) {
+        io.sockets.emit('price', {type:'price', symbol:symbols[index], price:prices[index]});
+    });
+
     io.sockets.emit('price', price);
 }
 setInterval(updatePrice, 50);
@@ -37,4 +43,15 @@ setInterval(updatePrice, 50);
 //**********************************************
 //*****     INITIALIZATION 
 //**********************************************
+function initPrices () {
+    for (var i = 0; i < 4; i++) {
+        var sum = 0;
+        // sum 20 terms between 0, 10 for each, for a ~normal distribution
+        for (var j =0; j < 20; ++j) 
+            sum += Math.random () * 10;
+        prices.push (Math.floor(sum));
+    }
+}
+
+initPrices();
 console.log('Server listening on ' + HOST +':'+ PORT);
