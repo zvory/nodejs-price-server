@@ -1,12 +1,12 @@
 var io = require('socket.io').listen(9091);
 var fs = require('fs');
+var bitcoinity = require("bitcoinity");
 
 //Our Details
 var HOST = 'csclub.uwaterloo.ca';
 var PORT = 9090;
 
 var symbols = ['TLO', 'STC', 'MC', 'RTZ'];
-var prices = [];
 
 //**********************************************
 //*****     SOCKETS TO DASHBOARD
@@ -28,17 +28,34 @@ io.on('connection', function(socket){
 //**********************************************
 //*****     PRICE CODE
 //**********************************************
-function updatePrice(){
-    prices = prices.map(function (entry) {
-        return Math.abs(entry + Math.random() - 0.5);
-    });
-    
-    prices.forEach(function (entry, index) {
-        io.sockets.emit('price', {type:'price', symbol:symbols[index], price:prices[index]});
-    });
+var prices = {};
 
+function Price (fairValue, price, symbol) {
+    this.symbol = symbol;
+    this.price = price;
+    this.fairValue = fairValue;
+    this.lastUpdate = new Date().getTime();
+
+    this.updateFairValue = function (fairValue) {
+        this.fairValue = fairValue;
+    };
+    this.updatePrice = function () {
+        var coeff = (this.lastUpdate - new Date().getTime()) / 100;
+        var delta = Math.random() - 0.5 + (this.price - fairValue) * 0.01;
+        this.price += coeff * delta;
+        this.lastUpdate = new Date().getTime();
+    };
 }
-setInterval(updatePrice, 200);
+
+
+
+function emitUpdatedPrices(){
+    symbols.forEach(function (symbol) {
+        var price = prices[symbol];
+        price.updatePrice();
+        io.sockets.emit('price', {type:'price', symbol:symbol, price:price.price});
+    });
+}
 
 
 //**********************************************
@@ -50,9 +67,12 @@ function initPrices () {
         // sum 10 terms between 0, 20 for each, for a ~normal distribution
         for (var j =0; j < 5; ++j) 
             sum += Math.random () * 40;
-        prices.push (Math.floor(sum));
+
+        var price = new Price (sum, sum, symbols[i]);
+        prices[symbols[i]]= price;
     }
 }
 
 initPrices();
+setInterval(emitUpdatedPrices, 200);
 console.log('Server listening on ' + HOST +':'+ PORT);
