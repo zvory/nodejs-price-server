@@ -27,7 +27,7 @@ io.on('connection', function(socket){
 //*****     PRICE CODE
 //**********************************************
 function updatePrice(){
-    prices.map(function (entry) {
+    prices = prices.map(function (entry) {
         return Math.abs(entry + Math.random() - 0.5);
     });
     
@@ -35,9 +35,8 @@ function updatePrice(){
         io.sockets.emit('price', {type:'price', symbol:symbols[index], price:prices[index]});
     });
 
-    io.sockets.emit('price', price);
 }
-setInterval(updatePrice, 50);
+setInterval(updatePrice, 200);
 
 
 //**********************************************
@@ -46,10 +45,11 @@ setInterval(updatePrice, 50);
 function initPrices () {
     for (var i = 0; i < 4; i++) {
         var sum = 0;
-        // sum 20 terms between 0, 10 for each, for a ~normal distribution
-        for (var j =0; j < 20; ++j) 
-            sum += Math.random () * 10;
+        // sum 10 terms between 0, 20 for each, for a ~normal distribution
+        for (var j =0; j < 5; ++j) 
+            sum += Math.random () * 40;
         prices.push (Math.floor(sum));
+        console.log(Math.floor(sum));
     }
 }
 
