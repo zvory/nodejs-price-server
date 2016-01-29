@@ -6,3 +6,12 @@ __server.js__ Updates a set of prices every 200ms. On update, it broadcasts usin
 __index.html__ Contains the live visualization. Real-time updating chart of price so far, including 30-day Moving Average. Uses smoothie.js for visualization.
 
 __smoothie.js__ JS Charting library from [http://smoothiecharts.org/](http://smoothiecharts.org/)
+
+#####Roadmap
+Agent based simulation:
+ - super basic bots to model the markets
+   - some way to model order book i.e. "spread"
+   - some way to handle trades
+
+
+

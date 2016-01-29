@@ -9,10 +9,20 @@
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
+    <nav class="nav" tabindex="-1" onclick="this.focus()">
+    <div class="container">
+        <a class="pagename " href="../index.html">Alexander Zvorygin</a>
+        <a href="mailto:azvorygi@uwaterloo.ca">azvorygi@uwaterloo.ca</a>
+        <a href="../resume.html">Resume</a>
+        <a href="../notes.html">Notes</a>
+        <a href="https://github.com/zvory">Github</a>
+        <a href="../projects.html">Projects</a>
+        <a class="current" href="viz/index.html">Market Simulator</a>
+    </div>
+    </nav>
     <div class="container">
         <p><a href="http://github.com/zvory/price-visualization">GitHub source </a></p>
-        <p><span style="color: green">Green</span> line is current price.</p>
-        <p><span style="color: magenta">Magenta</span> line is the thirty day moving average.</p>
+        <p><span style="color: green">Green</span> line is current price. <span style="color: magenta">Magenta</span> line is the thirty day moving average. It takes a few seconds for the graphs to load enough datapoints.</p>
 
         <div>
             <p>Symbol: TLO, Current Price: <span id = "TLOSpan"></span></p>
@@ -21,8 +31,8 @@
             <canvas class="chart"  id="STC" width="800" height="150"></canvas> </div>
         <div><p>Symbol: MC, Current Price: <span id = "MCSpan"></span></p>
              <canvas class="chart"  id="MC" width="800" height="150"></canvas> </div>
-        <div><p>Symbol: RTZ, Current Price: <span id = "RTZSpan"></span></p>
-            <canvas class="chart"  id="RTZ" width="800" height="150"></canvas> </div>
+        <div><p>Symbol: QXC, Current Price: <span id = "QXCSpan"></span></p>
+            <canvas class="chart"  id="QXC" width="800" height="150"></canvas> </div>
     </div>
 
     <script src="https://cdn.socket.io/socket.io-1.4.3.js"></script>
@@ -30,7 +40,7 @@
     <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"> </script> 
 
     <script>
-var symbols = ['TLO', 'STC', 'MC', 'RTZ'];
+var symbols = ['TLO', 'STC', 'MC', 'QXC'];
 
 var socket = io.connect('csclub.uwaterloo.ca:9091');
 

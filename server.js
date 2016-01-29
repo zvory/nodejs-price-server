@@ -1,12 +1,13 @@
 var io = require('socket.io').listen(9091);
 var fs = require('fs');
 var bitcoinity = require("bitcoinity");
+var PriorityQueue = require('js-priority-queue');
 
 //Our Details
 var HOST = 'csclub.uwaterloo.ca';
 var PORT = 9090;
 
-var symbols = ['TLO', 'STC', 'MC', 'RTZ'];
+var symbols = ['TLO', 'STC', 'MC', 'QXC'];
 
 //**********************************************
 //*****     SOCKETS TO DASHBOARD
@@ -26,28 +27,63 @@ io.on('connection', function(socket){
 });
 
 //**********************************************
+//*****     BOOK CODE
+//**********************************************
+// We will have a Book object for each symbol being traded
+// It will contain the buy and sell orders for each symbol
+// It will also contain logic for the resolution of trades
+// Orders are added, and when the server calls a function to resolve trades
+var books = {};
+
+function Order (symbol, price, dir, id, client) {
+    this.symbol=symbol;
+    this.price=price;
+    this.dir=dir;
+    this.id=id;
+    this.client=client;
+}
+
+
+function Book (symbol) {
+    this.symbol = symbol;
+
+    this.buy = new PriorityQueue({ comparator: function(a, b) { return a.price > b.price; }});
+    this.sell = new PriorityQueue({ comparator: function(a, b) { return a.price < b.price; }});
+
+    function resolveTrades() {
+        var resolved = [];
+        while (this.buy.peek() >= this.sell.peek()){
+            resolved.push(this.buy.dequeue());
+            resolved.push(this.sell.dequeue());
+        }
+    }
+    function addOrder(order) {
+        if (order.dir === "buy")
+            this.buy.queue(order);
+        else
+            this.sell.queue(order);
+    }
+}
+
+
+//**********************************************
 //*****     PRICE CODE
 //**********************************************
 var prices = {};
 
-function Price (fairValue, price, symbol) {
+//Models the fair value of a security/stock
+function Price (price, symbol) {
     this.symbol = symbol;
     this.price = price;
-    this.fairValue = fairValue;
     this.lastUpdate = new Date().getTime();
-
-    this.updateFairValue = function (fairValue) {
-        this.fairValue = fairValue;
-    };
     this.updatePrice = function () {
-        var coeff = (this.lastUpdate - new Date().getTime()) / 100;
-        var delta = Math.random() - 0.5 + (this.price - fairValue) * 0.01;
-        this.price += coeff * delta;
+        var timeCoeff = (this.lastUpdate - new Date().getTime()) /100;
+        var sizeCoeff = ((this.price < 25) ? (this.price/25) : 1) ;
+        var delta = Math.random() - 0.5;
+        this.price += timeCoeff * sizeCoeff * delta +((this.price< 10) ? 0.02: 0) ;
         this.lastUpdate = new Date().getTime();
     };
 }
-
-
 
 function emitUpdatedPrices(){
     symbols.forEach(function (symbol) {
@@ -55,6 +91,16 @@ function emitUpdatedPrices(){
         price.updatePrice();
         io.sockets.emit('price', {type:'price', symbol:symbol, price:price.price});
     });
+}
+
+//**********************************************
+//*****     MAIN LOGIC LOOP
+//**********************************************
+function main () {
+
+
+
+    emitUpdatedPrices();
 }
 
 
@@ -65,14 +111,14 @@ function initPrices () {
     for (var i = 0; i < 4; i++) {
         var sum = 0;
         // sum 10 terms between 0, 20 for each, for a ~normal distribution
-        for (var j =0; j < 5; ++j) 
-            sum += Math.random () * 40;
+        for (var j =0; j < 2; ++j) 
+            sum += Math.random () * 100;
 
-        var price = new Price (sum, sum, symbols[i]);
+        var price = new Price (sum, symbols[i]);
         prices[symbols[i]]= price;
     }
 }
 
 initPrices();
-setInterval(emitUpdatedPrices, 200);
+setInterval(main, 400);
 console.log('Server listening on ' + HOST +':'+ PORT);
