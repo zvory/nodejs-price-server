@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-    <nav class="nav" tabindex="-1" onclick="this.focus()">
+    <nav class="nav"  onclick="this.focus()">
     <div class="container">
         <a class="pagename " href="../index.html">Alexander Zvorygin</a>
         <a href="mailto:azvorygi@uwaterloo.ca">azvorygi@uwaterloo.ca</a>
@@ -40,6 +40,9 @@
     <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"> </script> 
 
     <script>
+
+// yes, the javascript is embedded into the html file
+// this is out of convencience, dealing with dependences in external files got in the way
 var symbols = ['TLO', 'STC', 'MC', 'QXC'];
 
 var socket = io.connect('csclub.uwaterloo.ca:9091');
@@ -50,23 +53,33 @@ socket.on('connect', function () {
     });
 });
 
+//returns the average of an arry
 function arrayAverage (arr) {
     return arr.reduce(function (a, b) {
         return a + b;
     })/arr.length;
 }
 
+//used to make the charts nice in smoothie.js
 function myYRangeFunction (range) {
-    var min = range.min - 5;
-    var max = range.max + 5;
+    var min = range.min -(range.max-range.min)* 0.3;
+    var max = range.max + (range.max-range.min) * 0.3;
+    if (max <0)
+        max =0;
     return {min: min, max: max};
 }
 
 this.charts = {};
 
+// Data structure for a chart.
+// Kind of big and long, but its necessary to adhere to DRY
 function Chart (symbol) {
+
+    //last thirty datapoints
     this.lastThirty = [];
     this.symbol = symbol;
+    
+    //make a new smoothie chart that is aesthetically pleasing
     this.chart = new SmoothieChart(
             {yRangeFunction: myYRangeFunction,
                 millisPerPixel:100,
@@ -76,22 +89,34 @@ function Chart (symbol) {
                     lineWidth: 1,
                     millisPerLine: 250,
                     verticalSections: 6 }});
+    
+    //create a stream pointing to the corresponding html element
     this.stream = this.chart.streamTo(document.getElementById(symbol), 1000);
+
     this.series = new TimeSeries();
     this.thirtyDaySeries = new TimeSeries();
+
+    // add the new TimeSeries objects with nice formatting to the chart
     this.chart.addTimeSeries(this.series, { strokeStyle: 'rgb(0, 255, 0)', fillStyle: 'rgba(0, 255, 0, 0.4)', lineWidth: 3 });
     this.chart.addTimeSeries(this.thirtyDaySeries, { strokeStyle: 'rgb(255, 0, 255)', fillStyle: 'rgba(0, 255, 0, 0.4)', lineWidth: 3 });
 
+    //function to add a datapoint to the chart
     this.addDataPoint = function (price) {
+        // makes sure we only store up to thirty days in the past
         if (this.lastThirty.length >30)
             this.lastThirty.shift();
         this.lastThirty.push(price);
+
+        //push the new datapoints onto the timeseries
         this.thirtyDaySeries.append(new Date().getTime(), arrayAverage(this.lastThirty));
         this.series.append(new Date().getTime(), price);
-        document.getElementById(this.symbol + "Span").innerHTML = Math.round(price);
+
+        //write the new price to the text readout above each chart
+        document.getElementById(this.symbol + "Span").innerHTML =price.toFixed(2);
     }
 }
 
+//when everything has loaded, makes a chart for every symbol
 window.onload = function () {
     symbols.forEach(function (symbol) {
         charts[symbol] = new Chart (symbol);
@@ -99,6 +124,7 @@ window.onload = function () {
 };
 
 
+//calls a chart's internal update funciton 
 function writeGraphs (msg) {
     charts[msg.symbol].addDataPoint(msg.price);
 }
