@@ -127,9 +127,12 @@ function Price (price, symbol) {
         // random walk element, delta is in the range [-0.5, 0.5)
         var delta = Math.random() - 0.5;
 
+        //prevent stock from growing super high
+        var capReduce = ((this.price> 200) ? ((this.price - 200) * 0.01) : 0);
+
         // multiplied delta by sizeCoeff and timeCoeff
         // softly ensures price doesnt dip below 0.02
-        this.price += timeCoeff * sizeCoeff * delta +((this.price< 1) ? 0.02: 0) ;
+        this.price += timeCoeff * (sizeCoeff * delta +((this.price< 1) ? 0.02: 0) + capReduce);
 
         this.lastUpdate = new Date().getTime();
     };

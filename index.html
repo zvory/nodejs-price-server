@@ -15,8 +15,7 @@
         <a href="mailto:azvorygi@uwaterloo.ca">azvorygi@uwaterloo.ca</a>
         <a href="../resume.html">Resume</a>
         <a href="../notes.html">Notes</a>
-        <a href="https://github.com/zvory">Github</a>
-        <a href="../projects.html">Projects</a>
+        <a href="https://github.com/zvory">Github/Projects</a>
         <a class="current" href="viz/index.html">Market Simulator</a>
     </div>
     </nav>
@@ -82,7 +81,7 @@ function Chart (symbol) {
     //make a new smoothie chart that is aesthetically pleasing
     this.chart = new SmoothieChart(
             {yRangeFunction: myYRangeFunction,
-                millisPerPixel:100,
+                millisPerPixel:50,
                 grid: 
                 {strokeStyle: 'rgb(125, 0, 0)',
                     fillStyle: 'rgb(60, 0, 0)',

@@ -5,14 +5,12 @@ __server.js__ Updates a set of prices every 400ms. The simulation is relatively 
 
 __index.html__ Contains the live visualization. Real-time updating charts of prices, including 30-day Moving Average. Uses [smoothie.js](http://smoothiecharts.org/) for visualization.
 
-__trader.js__ The begginings of a bot which will model institutional investors.
+The rest of the files are unimportant, and are just prototypes of ideas I had while coding.
 
-
-#####Roadmap
-Agent based simulation:
- - super basic bots to model the markets
-   - some way to model order book i.e. "spread"
-   - some way to handle trades
+#####TODO
+Note: this project is no longer under active development.  
+ - Fix code quality and architecture
+ - Performance improvements
 
 
 
