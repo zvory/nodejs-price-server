@@ -1,7 +1,7 @@
 ###Nodejs Price Server
-Live Visualization (assuming server is up) [can be found here.](http://zvoryg.in/viz/)
+Live Visualization of realistically generated prices [can be found here](http://zvoryg.in/viz/) (assuming the server is up).
 
-__server.js__ Updates a set of prices every 400ms. The simulation is relatively sophisticated, it is based on real world economics. On update, it broadcasts using sockets the new price. Includes logging funcionality.
+__server.js__ Updates a set of prices every 400ms. The simulation is relatively sophisticated, it is based on real world economics. All prices are initially generated in a normal distribution, and from there are modeled by a biased random walk. 
 
 __index.html__ Contains the live visualization. Real-time updating charts of prices, including 30-day Moving Average. Uses [smoothie.js](http://smoothiecharts.org/) for visualization.
 

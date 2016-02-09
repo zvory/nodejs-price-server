@@ -1,6 +1,5 @@
 var io = require('socket.io').listen(9091);
 var fs = require('fs');
-var bitcoinity = require("bitcoinity");
 var PriorityQueue = require('js-priority-queue');
 
 //Our Details
@@ -151,10 +150,8 @@ function emitUpdatedPrices(){
 //*****     MAIN LOGIC LOOP
 //**********************************************
 function main () {
-    emitUpdatedBooks();
     emitUpdatedPrices();
 }
-
 
 //**********************************************
 //*****     INITIALIZATION 
@@ -177,11 +174,6 @@ function initPrices () {
     }
 }
 initPrices();
-
-//create books for every symbol
-symbols.forEach(function (entry) {
-    books[entry] = new Book (entry);
-});
 
 //call the main logic thread every 400ms
 setInterval(main, 400);
